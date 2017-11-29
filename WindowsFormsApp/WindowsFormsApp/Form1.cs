@@ -44,6 +44,11 @@ namespace WindowsFormsApp
                 "Povrsina"
             };
             comboBoxSort.DataSource = lSortCriterias;
+
+            /*COMBO BOX NOVA REGIJA*/
+            List<string> lNewRegionOptions = lCountries.Where(o => o.sRegion != "").Select(o => o.sRegion).Distinct().ToList();
+            lNewRegionOptions.Insert(0, " - ");
+            comboBoxContinent.DataSource = lNewRegionOptions;
         }
         public List<Country> GetCountries()
         {
@@ -139,6 +144,52 @@ namespace WindowsFormsApp
 
             }
         }
-        
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+           string sPronadi = inptSearch.Text;
+           var ContainsQuery = from c in lCountries where c.sName.Contains(sPronadi) select c;
+           List<Country> lContainFilteredUsers = ContainsQuery.ToList();
+           dataGridViewCountries.DataSource = lContainFilteredUsers.OrderBy(o => o.sName).ToList();
+        }
+
+        private void comboBoxContinent_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //čitanje odabrane vrijednosti
+            string sRegion = (string)comboBoxContinent.SelectedItem; // odabrana vrijednost
+            lCountries = GetCountries();
+            if (sRegion != "Svi kontinenti")
+            {
+                lCountries = lCountries.Where(o => o.sRegion == sRegion).ToList();
+
+                dataGridViewCountries.DataSource = lCountries;
+            }
+            else
+            {
+                dataGridViewCountries.DataSource = lCountries;
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            string NewCode = inptCode.Text;
+            string NewName = inptName.Text;
+            string NewCapital = inptCapital.Text;
+            int NewPopulation = Convert.ToInt32(inptPopulation.Text);
+            float NewArea = Convert.ToSingle(inptArea.Text);
+            string NewRegion = comboBoxContinent.Text;
+            Country Zemlja = new Country()
+            {
+                sCode = NewCode,
+                sName = NewName,
+                sCapital = NewCapital,
+                nPopulation = NewPopulation,
+                fArea = NewArea,
+                sRegion = NewRegion
+            };
+
+            lCountries.Add(Zemlja);
+            dataGridViewCountries.DataSource = lCountries;
+        }
     }
 }
